@@ -3,7 +3,7 @@ window.addEventListener("unload", function (event) {
     url: "/leaving-user-update/" + username + "",
     type: "PUT",
     success: function (response) {
-      alert(response);
+      console.log(response);
     },
   });
 });
@@ -11,6 +11,6 @@ $.ajax({
   url: "/leaving-user-update/" + username + "",
   type: "PUT",
   success: function (response) {
-    alert(response);
+    console.log(response);
   },
 });
