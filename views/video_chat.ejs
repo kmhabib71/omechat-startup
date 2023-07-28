@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Omegle</title>
         <link rel="stylesheet" href="/css/style.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js" integrity="sha512-xbQU0+iHqhVt7VIXi6vBJKPh3IQBF5B84sSHdjKiSccyX/1ZI7Vnkt2/8y8uruj63/DVmCxfUNohPNruthTEQA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
     </head>
     <body>
         <header>
@@ -33,6 +33,9 @@
                         <hr class="horizontal-divider">
                         <p class="chat-text-area"></p>
                     </div>
+                    <!-- // .... To delete all Records........ -->
+                    <button style="cursor: pointer;" id="deleteButton">Delete All Records</button>
+                    <!-- // .... To delete all Records........ -->
                     <div class="next-chat-container">
                         <div class="next-chat">
                             <div>Next</div>

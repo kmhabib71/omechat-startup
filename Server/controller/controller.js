@@ -39,6 +39,25 @@ exports.leavingUserUpdate = (req, res) => {
       res.status(500).send({ message: "Error update user information" });
     });
 };
+exports.updateOnOtherUserClosing = (req, res) => {
+  const userid = req.params.id;
+  console.log("Leaving userid is: ", userid);
+
+  UserDB.updateOne({ _id: userid }, { $set: { active: "yes", status: "0" } })
+    .then((data) => {
+      if (!data) {
+        res.status(404).send({
+          message: `Cannot update user with ${userid} Maybe user not found!`,
+        });
+      } else {
+        res.send("1 document updated");
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ message: "Error update user information" });
+    });
+};
+
 exports.newUserUpdate = (req, res) => {
   const userid = req.params.id;
   console.log("Revisited userid is: ", userid);
@@ -93,30 +112,49 @@ exports.updateOnNext = (req, res) => {
       res.status(500).send({ message: "Error update user information" });
     });
 };
+function isValidObjectId(id) {
+  // Check if the ID is a valid ObjectId
+  if (mongoose.Types.ObjectId.isValid(id)) {
+    const objectId = new mongoose.Types.ObjectId(id);
+    const idString = objectId.toString();
+
+    // Check if the resulting ID string matches the original input
+    if (id === idString) {
+      return true;
+    }
+  }
+
+  return false;
+}
 exports.remoteUserFind = (req, res) => {
   const omeID = req.body.omeID;
 
-  UserDB.aggregate([
-    {
-      $match: {
-        _id: { $ne: new mongoose.Types.ObjectId(omeID) },
-        active: "yes",
-        status: "0",
+  if (isValidObjectId(omeID)) {
+    UserDB.aggregate([
+      {
+        $match: {
+          _id: { $ne: new mongoose.Types.ObjectId(omeID) },
+          active: "yes",
+          status: "0",
+        },
       },
-    },
-    { $sample: { size: 1 } },
-  ])
-    .limit(1)
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message:
-          err.message || "Error occured while retriving user information.",
+      { $sample: { size: 1 } },
+    ])
+      .limit(1)
+      .then((data) => {
+        res.send(data);
+      })
+      .catch((err) => {
+        res.status(500).send({
+          message:
+            err.message || "Error occurred while retrieving user information.",
+        });
       });
-    });
+  } else {
+    console.log("Invalid ID");
+  }
 };
+
 exports.getNextUser = (req, res) => {
   const omeID = req.body.omeID;
   const remoteUser = req.body.remoteUser;
@@ -139,6 +177,18 @@ exports.getNextUser = (req, res) => {
       res.status(500).send({
         message:
           err.message || "Error occured while retriving user information.",
+      });
+    });
+};
+exports.deleteAllRecords = (req, res) => {
+  UserDB.deleteMany({})
+    .then(() => {
+      res.send("All records deleted successfully");
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while deleting all records",
       });
     });
 };
