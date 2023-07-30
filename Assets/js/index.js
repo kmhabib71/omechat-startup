@@ -267,7 +267,7 @@ function runUser() {
       remoteVid.srcObject.getTracks().forEach((track) => track.stop());
       remoteVid.srcObject = null;
     }
-
+    console.log("Closed Remote user");
     $.ajax({
       url: "/update-on-next/" + username + "",
       type: "PUT",
@@ -286,6 +286,10 @@ function runUser() {
   });
 
   window.addEventListener("unload", function (event) {
+    socket.emit("remoteUserClosed", {
+      username: username,
+      remoteUser: remoteUser,
+    });
     if (navigator.userAgent.indexOf("Chrome") != -1) {
       $.ajax({
         url: "/leaving-user-update/" + username + "",
