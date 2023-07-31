@@ -165,3 +165,57 @@ video{
     font-weight: bold;
     cursor: pointer;
 }
+
+@media (max-width: 768px) {
+    /* ............Header Start ..........*/
+    header {
+        flex-basis: 10%;
+        box-shadow: 0px 0px 5px gray;
+        max-height: 42px !important;
+    }
+    img.logo {
+        max-height: 60%;
+    }
+    .headerText{
+        font-size: 90%;
+    }
+    .online-status {
+        display: none;
+    }
+    .video_chat_container {
+        flex-direction: column;
+        padding-left: 2.48px;
+    }
+/* ............Header End ..........*/
+/* ............Video Start ..........*/
+    .videos {
+        position: relative;
+    }
+    video#user-1 {
+        position: absolute;
+        right: 0;
+        max-width: 60px;
+        margin-top: 3px;
+    }
+    .video-tag-container {
+        margin-top: 0px;
+        flex-basis: 0;
+    }
+    .chat-text-container p {
+        font-size: 100%;
+        line-height: 0.5;
+        text-align: center;
+    }
+    .video_chat_container {
+        flex-direction: column;
+        justify-content: space-between !important;
+        padding-left: 2.48px;
+        
+    }
+    main.video_chat_main_container {
+        flex-basis: 100%;
+    }
+    .chat-container {
+        flex-basis: 80%;
+    }
+  }

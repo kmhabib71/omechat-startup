@@ -7,13 +7,14 @@
         <title>Omegle</title>
         <link rel="stylesheet" href="/css/style.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     </head>
     <body>
         <header>
             <nav>
                 <div class="container">
                     <img class="logo" src="/img/Logo.png" alt="">
-                    <h2>Talk to stranger</h2>
+                    <h2 class="headerText">Talk to stranger</h2>
                     <div class="online-status">5000+ online now</div>
                 </div>
             </nav>
@@ -43,7 +44,10 @@
                         <div class="type-message">
                             <textarea name="" id="msg-input" cols="25" rows="5"></textarea>
                         </div>
-                        <div class="msg-send-button">Send</div>
+
+                        <div class="msg-send-button">
+                            <i class="material-icons " style="font-size:36px;">send</i>
+                        </div>
                     </div>
                 </div>
             </div>

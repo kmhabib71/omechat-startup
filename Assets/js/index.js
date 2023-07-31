@@ -261,7 +261,7 @@ function runUser() {
     const remotStream = peerConnection.getRemoteStreams()[0];
     remotStream.getTracks().forEach((track) => track.stop());
     peerConnection.close();
-
+    document.querySelector(".chat-text-area").innerHTML = "";
     const remoteVid = document.getElementById("user-2");
     if (remoteVid.srcObject) {
       remoteVid.srcObject.getTracks().forEach((track) => track.stop());
@@ -328,6 +328,7 @@ function runUser() {
     }
   });
   async function closeConnection() {
+    document.querySelector(".chat-text-area").innerHTML = "";
     const remotStream = peerConnection.getRemoteStreams()[0];
     remotStream.getTracks().forEach((track) => track.stop());
 
