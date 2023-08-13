@@ -96,6 +96,7 @@ button.action-button{
 }
 .video-player{
     flex-basis: 50%;
+    max-height: 350px;
 }
 video{
     max-width: 100%;
