@@ -34,19 +34,63 @@ var userConnection = [];
 
 io.on("connection", (socket) => {
   console.log("Socket id is: ", socket.id);
-
+  socket.emit("mySocketId", socket.id);
   socket.on("userconnect", (data) => {
     console.log("Logged in username", data.displayName);
     userConnection.push({
       connectionId: socket.id,
       user_id: data.displayName,
+      engaged: false,
     });
-
+    userConnection.map(function (user) {
+      const use = { "userid: ": user.user_id, Engaged: user.engaged };
+      console.log(use);
+    });
     var userCount = userConnection.length;
     console.log("UserCount", userCount);
     userConnection.map(function (user) {
       console.log("Username is: ", user.user_id);
+      console.log("Engaged is: ", user.engaged);
     });
+  });
+  // socket.to(socket.id).emit("socketid", socket.id);
+  socket.on("findUnengagedUser", (data) => {
+    const unengagedUser = userConnection.find(
+      (user) => !user.engaged && user.connectionId !== socket.id
+    );
+    // const firstUser = userConnection.find(
+    //   (user) => user.connectionId !== data.username
+    // );
+    if (unengagedUser) {
+      const senderUser = userConnection.find(
+        (user) => user.connectionId === socket.id
+      );
+      if (senderUser) {
+        senderUser.engaged = true;
+        console.log("UserUser is", senderUser);
+      }
+
+      unengagedUser.engaged = true;
+      // firstUser.engaged = true;
+      // console.log("firstUser", firstUser.engaged);
+      socket.emit("startChat", unengagedUser.connectionId);
+      console.log("engaged user", unengagedUser.engaged);
+    }
+  });
+  socket.on("findNextUnengagedUser", (data) => {
+    const availableUsers = userConnection.filter(
+      (user) =>
+        !user.engaged &&
+        user.connectionId !== socket.id &&
+        user.connectionId !== data.remoteUser
+    );
+
+    if (availableUsers.length > 0) {
+      const randomUser =
+        availableUsers[Math.floor(Math.random() * availableUsers.length)];
+      randomUser.engaged = true;
+      socket.emit("startChat", randomUser.connectionId);
+    }
   });
   socket.on("offerSentToRemote", (data) => {
     var offerReceiver = userConnection.find(
@@ -70,6 +114,10 @@ io.on("connection", (socket) => {
     var candidateReceiver = userConnection.find(
       (o) => o.user_id === data.remoteUser
     );
+    userConnection.map(function (user) {
+      const use = { "userid: ": user.user_id, Engaged: user.engaged };
+      console.log(use);
+    });
     if (candidateReceiver) {
       console.log(
         "candidateReceiver user is: ",
@@ -83,11 +131,17 @@ io.on("connection", (socket) => {
     console.log("User disconnected");
     // var disUser = userConnection.find((p) => (p.connectionId = socket.id));
     // if (disUser) {
+    // Reset engagement status of the disconnected user
+    // const disconnectedUser = connectedUsers.find(user => user.socketId === socket.id);
+    // if (disconnectedUser) {
+    //   disconnectedUser.engaged = false;
+    // }
+
     userConnection = userConnection.filter((p) => p.connectionId !== socket.id);
     console.log(
       "Rest users username are: ",
       userConnection.map(function (user) {
-        return user.user_id;
+        return { "userid: ": user.user_id, Engaged: user.engaged };
       })
     );
     // }
@@ -96,7 +150,30 @@ io.on("connection", (socket) => {
     var closedUser = userConnection.find((o) => o.user_id === data.remoteUser);
     if (closedUser) {
       console.log("closedUser user is: ", closedUser.connectionId);
+      closedUser.engaged = false;
       socket.to(closedUser.connectionId).emit("closedRemoteUser", data);
     }
   });
+
+  function myFunction() {
+    userConnection.map(function (user) {
+      const use = { "userid: ": user.user_id, Engaged: user.engaged };
+      console.log(use);
+    });
+  }
+
+  // const interval = setInterval(myFunction, 2000); // 2000 milliseconds = 2 seconds
+
+  // To stop the interval after a certain number of repetitions (e.g., stop after 10 times):
+  // const repetitions = 10;
+  // let count = 0;
+
+  // const interval = setInterval(() => {
+  //   myFunction();
+
+  //   count++;
+  //   if (count === repetitions) {
+  //     clearInterval(interval); // Stop the interval
+  //   }
+  // }, 2000);
 });
