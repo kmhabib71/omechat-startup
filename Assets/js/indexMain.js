@@ -12,60 +12,43 @@ var msgInput = document.querySelector("#msg-input");
 var msgSendBtn = document.querySelector(".msg-send-button");
 var chatTextArea = document.querySelector(".chat-text-area");
 var omeID = localStorage.getItem("omeID");
-let socket = io.connect();
-socket.on("connect", () => {
-  console.log("The Socket is connected");
-});
-
-socket.on("mySocketId", (socketId) => {
-  if (socket.connected) {
-    // username = newOmeID;
-    username = socketId;
-    socket.emit("userconnect", {
-      displayName: socketId,
-    });
-    runUser();
-  }
-
-  console.log("My Socket ID:", socketId);
-});
-// if (omeID) {
-//   $.ajax({
-//     url: "/new-user-update/" + omeID + "",
-//     type: "PUT",
-//     success: function (data) {
-//       const newOmeID = data.omeID;
-//       if (newOmeID) {
-//         localStorage.removeItem("omeID");
-//         localStorage.setItem("omeID", newOmeID);
-//         username = newOmeID;
-//         console.log("Here username is: ", username);
-//         runUser();
-//       } else {
-//         username = omeID;
-//         console.log("Here username is: ", username);
-//         runUser();
-//       }
-//     },
-//   });
-//   console.log("Here username is: ", username);
-// } else {
-//   var postData = "Demo Data";
-//   $.ajax({
-//     type: "POST",
-//     url: "/api/users",
-//     data: postData,
-//     success: function (response) {
-//       console.log(response);
-//       localStorage.setItem("omeID", response);
-//       username = response;
-//       runUser();
-//     },
-//     error: function (error) {
-//       console.log(error);
-//     },
-//   });
-// }
+if (omeID) {
+  $.ajax({
+    url: "/new-user-update/" + omeID + "",
+    type: "PUT",
+    success: function (data) {
+      const newOmeID = data.omeID;
+      if (newOmeID) {
+        localStorage.removeItem("omeID");
+        localStorage.setItem("omeID", newOmeID);
+        username = newOmeID;
+        console.log("Here username is: ", username);
+        runUser();
+      } else {
+        username = omeID;
+        console.log("Here username is: ", username);
+        runUser();
+      }
+    },
+  });
+  console.log("Here username is: ", username);
+} else {
+  var postData = "Demo Data";
+  $.ajax({
+    type: "POST",
+    url: "/api/users",
+    data: postData,
+    success: function (response) {
+      console.log(response);
+      localStorage.setItem("omeID", response);
+      username = response;
+      runUser();
+    },
+    error: function (error) {
+      console.log(error);
+    },
+  });
+}
 // ......Delete All Records..........
 
 document.getElementById("deleteButton").addEventListener("click", () => {
@@ -87,34 +70,30 @@ function runUser() {
       audio: true,
     });
     document.getElementById("user-1").srcObject = localStream;
-
-    socket.emit("findUnengagedUser", {
-      username: username,
-    });
-
-    socket.on("startChat", (otherUserId) => {
-      console.log("Starting chat with user:", otherUserId);
-      remoteUser = otherUserId;
-      createOffer(otherUserId);
-    });
-
-    // $.post("/get-remote-users", { omeID: username })
-    //   .done(function (data) {
-    //     console.log(data);
-    //     if (data[0]) {
-    //       if (data[0]._id == remoteUser || data[0]._id == username) {
-    //       } else {
-    //         remoteUser = data[0]._id;
-    //         createOffer(data[0]._id);
-    //       }
-    //     }
-    //   })
-    //   .fail(function (xhr, textStatus, errorThrown) {
-    //     console.log(xhr.responseText);
-    //   });
+    $.post("/get-remote-users", { omeID: username })
+      .done(function (data) {
+        console.log(data);
+        if (data[0]) {
+          if (data[0]._id == remoteUser || data[0]._id == username) {
+          } else {
+            remoteUser = data[0]._id;
+            createOffer(data[0]._id);
+          }
+        }
+      })
+      .fail(function (xhr, textStatus, errorThrown) {
+        console.log(xhr.responseText);
+      });
   };
   init();
-
+  let socket = io.connect();
+  socket.on("connect", () => {
+    if (socket.connected) {
+      socket.emit("userconnect", {
+        displayName: username,
+      });
+    }
+  });
   let servers = {
     iceServers: [
       {
@@ -217,30 +196,20 @@ function runUser() {
     }
   }
   function fetchNextUser(remoteUser) {
-    socket.emit("findNextUnengagedUser", {
-      username: username,
-      remoteUser: remoteUser,
-    });
-
-    socket.on("NextStartChat", (otherUserId) => {
-      console.log("Starting chat with user:", otherUserId);
-      remoteUser = otherUserId;
-      createOffer(otherUserId);
-    });
-    // $.post(
-    //   "/get-next-user",
-    //   { omeID: username, remoteUser: remoteUser },
-    //   function (data) {
-    //     console.log("Next user is: ", data);
-    //     if (data[0]) {
-    //       if (data[0]._id == remoteUser || data[0]._id == username) {
-    //       } else {
-    //         remoteUser = data[0]._id;
-    //         createOffer(data[0]._id);
-    //       }
-    //     }
-    //   }
-    // );
+    $.post(
+      "/get-next-user",
+      { omeID: username, remoteUser: remoteUser },
+      function (data) {
+        console.log("Next user is: ", data);
+        if (data[0]) {
+          if (data[0]._id == remoteUser || data[0]._id == username) {
+          } else {
+            remoteUser = data[0]._id;
+            createOffer(data[0]._id);
+          }
+        }
+      }
+    );
   }
   let createOffer = async (remoteU) => {
     createPeerConnection();
@@ -265,11 +234,11 @@ function runUser() {
       receiver: data.username,
     });
     document.querySelector(".next-chat").style.pointerEvents = "auto";
-    // $.ajax({
-    //   url: "/update-on-engagement/" + username + "",
-    //   type: "PUT",
-    //   success: function (response) {},
-    // });
+    $.ajax({
+      url: "/update-on-engagement/" + username + "",
+      type: "PUT",
+      success: function (response) {},
+    });
   };
   socket.on("ReceiveOffer", function (data) {
     createAnswer(data);
@@ -279,11 +248,11 @@ function runUser() {
       peerConnection.setRemoteDescription(data.answer);
     }
     document.querySelector(".next-chat").style.pointerEvents = "auto";
-    // $.ajax({
-    //   url: "/update-on-engagement/" + username + "",
-    //   type: "PUT",
-    //   success: function (response) {},
-    // });
+    $.ajax({
+      url: "/update-on-engagement/" + username + "",
+      type: "PUT",
+      success: function (response) {},
+    });
   };
   socket.on("ReceiveAnswer", function (data) {
     addAnswer(data);
@@ -299,15 +268,13 @@ function runUser() {
       remoteVid.srcObject = null;
     }
     console.log("Closed Remote user");
-    fetchNextUser(remoteUser);
-    // $.ajax({
-    //   url: "/update-on-next/" + username + "",
-    //   type: "PUT",
-    //   success: function (response) {
-    //     fetchNextUser(remoteUser);
-    //   },
-    // });
-    // socket.emit("remoteUserClosed")
+    $.ajax({
+      url: "/update-on-next/" + username + "",
+      type: "PUT",
+      success: function (response) {
+        fetchNextUser(remoteUser);
+      },
+    });
   });
 
   socket.on("candidateReceiver", function (data) {
@@ -323,42 +290,42 @@ function runUser() {
       username: username,
       remoteUser: remoteUser,
     });
-    // if (navigator.userAgent.indexOf("Chrome") != -1) {
-    //   $.ajax({
-    //     url: "/leaving-user-update/" + username + "",
-    //     type: "PUT",
-    //     success: function (response) {
-    //       console.log(response);
-    //     },
-    //   });
-    //   $.ajax({
-    //     url: "/update-on-otheruser-closing/" + remoteUser + "",
-    //     type: "PUT",
-    //     success: function (response) {
-    //       console.log(response);
-    //     },
-    //   });
-    // } else if (navigator.userAgent.indexOf("Firefox") != -1) {
-    //   $.ajax({
-    //     url: "/leaving-user-update/" + username + "",
-    //     type: "PUT",
-    //     async: false,
-    //     success: function (response) {
-    //       console.log(response);
-    //     },
-    //   });
+    if (navigator.userAgent.indexOf("Chrome") != -1) {
+      $.ajax({
+        url: "/leaving-user-update/" + username + "",
+        type: "PUT",
+        success: function (response) {
+          console.log(response);
+        },
+      });
+      $.ajax({
+        url: "/update-on-otheruser-closing/" + remoteUser + "",
+        type: "PUT",
+        success: function (response) {
+          console.log(response);
+        },
+      });
+    } else if (navigator.userAgent.indexOf("Firefox") != -1) {
+      $.ajax({
+        url: "/leaving-user-update/" + username + "",
+        type: "PUT",
+        async: false,
+        success: function (response) {
+          console.log(response);
+        },
+      });
 
-    //   $.ajax({
-    //     url: "/update-on-otheruser-closing/" + remoteUser + "",
-    //     type: "PUT",
-    //     async: false,
-    //     success: function (response) {
-    //       console.log(response);
-    //     },
-    //   });
-    // } else {
-    //   console.log("This is not Chrome or Firefox");
-    // }
+      $.ajax({
+        url: "/update-on-otheruser-closing/" + remoteUser + "",
+        type: "PUT",
+        async: false,
+        success: function (response) {
+          console.log(response);
+        },
+      });
+    } else {
+      console.log("This is not Chrome or Firefox");
+    }
   });
   async function closeConnection() {
     document.querySelector(".chat-text-area").innerHTML = "";
@@ -376,14 +343,13 @@ function runUser() {
       username: username,
       remoteUser: remoteUser,
     });
-    fetchNextUser(remoteUser);
-    // $.ajax({
-    //   url: "/update-on-next/" + username + "",
-    //   type: "PUT",
-    //   success: function (response) {
-    //     fetchNextUser(remoteUser);
-    //   },
-    // });
+    $.ajax({
+      url: "/update-on-next/" + username + "",
+      type: "PUT",
+      success: function (response) {
+        fetchNextUser(remoteUser);
+      },
+    });
   }
   // document.querySelector(".next-chat").onClick = function () {
   $(document).on("click", ".next-chat", function () {

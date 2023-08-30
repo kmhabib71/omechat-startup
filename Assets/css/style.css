@@ -11,7 +11,7 @@ body{
 }
 header{
     flex-basis: 10%;
-    box-shadow: 0px 0px 5px gray;
+    box-shadow: 0px 0px 5px white;
 }
 nav{
     height: 100%;
@@ -81,13 +81,18 @@ button.action-button{
     display: flex;
     height: 100%;
     width: 100%;
+    background-color: #AA44CC;
+    color: white;
 }
 .video-tag-container{
-    margin-top: 10px;
+    margin: 5px;
     margin-right: 5px;
     flex-basis: 30%;
     display: flex;
     flex-direction: column;
+}
+.horizontal-divider{
+    box-shadow: 0px 0px 5px white;
 }
 .videos{
     display: flex;
@@ -128,7 +133,7 @@ video{
     flex-basis: 15%;
     padding: 10px;
     border-radius: 2px;
-    box-shadow: 0 0 5px gray;
+    box-shadow: 0 0 5px white;
     margin: 5px;
     justify-content: center;
     align-items: center;
@@ -141,7 +146,7 @@ video{
     flex-basis: 70%;
     padding: 10px;
     border-radius: 2px;
-    box-shadow: 0 0 5px gray;
+    box-shadow: 0 0 5px white;
     height: auto;
     width: 100%;
     margin-top: 5px;
@@ -151,7 +156,7 @@ video{
     width: 99%;
     height: 91%;
     outline: none;
-    border: 1px solid lightgray;
+    border: 1px solid lightwhite;
     padding: 5px;
 }
 .msg-send-button{
@@ -159,19 +164,24 @@ video{
     flex-basis: 15%;
     padding: 10px;
     border-radius: 2px;
-    box-shadow: 0 0 5px gray;
+    box-shadow: 0 0 5px white;
     margin: 5px;
     justify-content: center;
     align-items: center;
     font-weight: bold;
     cursor: pointer;
 }
-
+.headerText{
+    color: #AA44CC;
+}
+.online-status {
+    color: #AA44CC;
+}
 @media (max-width: 768px) {
     /* ............Header Start ..........*/
     header {
         flex-basis: 10%;
-        box-shadow: 0px 0px 5px gray;
+        box-shadow: 0px 0px 5px white;
         max-height: 42px !important;
     }
     img.logo {
@@ -179,13 +189,17 @@ video{
     }
     .headerText{
         font-size: 90%;
+        color: #AA44CC;
     }
     .online-status {
         display: none;
+        color: #AA44CC;
     }
     .video_chat_container {
         flex-direction: column;
         padding-left: 2.48px;
+        background-color: #AA44CC;
+        color: white;
     }
 /* ............Header End ..........*/
 /* ............Video Start ..........*/
@@ -211,7 +225,8 @@ video{
         flex-direction: column;
         justify-content: space-between !important;
         padding-left: 2.48px;
-        
+        background-color: #AA44CC;
+        color: white;
     }
     main.video_chat_main_container {
         flex-basis: 100%;

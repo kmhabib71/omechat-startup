@@ -1,0 +1,89 @@
+<html>
+    <head>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                background-color: #CC66FF; /* Magenta */
+                font-family: Arial, sans-serif;
+            }
+            .header {
+                position: absolute;
+                top: 0;
+                background-color: white;
+                color: #AA44CC;
+                width: -webkit-fill-available;
+                padding: 10px 0;
+                text-align: center;
+                border-bottom-left-radius: 10px;
+                border-bottom-right-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .header h1 {
+                margin: 0;
+                color: #AA44CC;
+                font-size: 24px;
+            }
+
+            .container {
+                text-align: center;
+                padding: 20px;
+                background-color: rgba(255, 255, 255, 0.8);
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            }
+
+            h1 {
+                color: #CC66FF; /* Magenta */
+            }
+
+            p {
+                color: #333;
+            }
+
+            .join-button {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #CC66FF; /* Magenta */
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            .join-button:hover {
+                background-color: #AA44CC; /* Slightly darker shade on hover */
+            }
+            .footer {
+                /* background-color: #333; */
+                background-color: #AA44CC;
+                color: white;
+                text-align: center;
+                padding: 10px 0;
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Talk With</h1>
+        </div>
+        <div class="container">
+            <h1>Welcome to Talk With XYZ!</h1>
+            <p>Connect, communicate, and talk with ease.</p>
+            <button class="join-button">Start Chat</button>
+        </div>
+        <div class="footer">
+            &copy; 2023 VideoChatApp. All rights reserved.
+        </div>
+    </body>
+</html>

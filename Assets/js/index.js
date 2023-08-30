@@ -2,8 +2,7 @@ let localStream;
 var username;
 let remoteUser;
 let url = new URL(window.location.href);
-// // username = url.searchParams.get("username");
-// remoteUser = url.searchParams.get("remoteuser");
+
 let peerConnection;
 let remoteStream;
 let sendChannel;
@@ -12,44 +11,23 @@ var msgInput = document.querySelector("#msg-input");
 var msgSendBtn = document.querySelector(".msg-send-button");
 var chatTextArea = document.querySelector(".chat-text-area");
 var omeID = localStorage.getItem("omeID");
-if (omeID) {
-  $.ajax({
-    url: "/new-user-update/" + omeID + "",
-    type: "PUT",
-    success: function (data) {
-      const newOmeID = data.omeID;
-      if (newOmeID) {
-        localStorage.removeItem("omeID");
-        localStorage.setItem("omeID", newOmeID);
-        username = newOmeID;
-        console.log("Here username is: ", username);
-        runUser();
-      } else {
-        username = omeID;
-        console.log("Here username is: ", username);
-        runUser();
-      }
-    },
-  });
-  console.log("Here username is: ", username);
-} else {
-  var postData = "Demo Data";
-  $.ajax({
-    type: "POST",
-    url: "/api/users",
-    data: postData,
-    success: function (response) {
-      console.log(response);
-      localStorage.setItem("omeID", response);
-      username = response;
-      runUser();
-    },
-    error: function (error) {
-      console.log(error);
-    },
-  });
-}
-// ......Delete All Records..........
+let socket = io.connect();
+socket.on("connect", () => {
+  console.log("The Socket is connected");
+});
+
+socket.on("mySocketId", (socketId) => {
+  if (socket.connected) {
+    // username = newOmeID;
+    username = socketId;
+    socket.emit("userconnect", {
+      displayName: socketId,
+    });
+    runUser();
+  }
+
+  console.log("My Socket ID:", socketId);
+});
 
 document.getElementById("deleteButton").addEventListener("click", () => {
   fetch("/deleteAllRecords", {
@@ -58,11 +36,10 @@ document.getElementById("deleteButton").addEventListener("click", () => {
     .then((response) => response.text())
     .then((message) => {
       console.log(message);
-      // You can display a success message to the user or perform additional actions
     })
     .catch((error) => console.error("Error deleting records:", error));
 });
-// ......Delete All Records..........
+
 function runUser() {
   let init = async () => {
     localStream = await navigator.mediaDevices.getUserMedia({
@@ -70,30 +47,19 @@ function runUser() {
       audio: true,
     });
     document.getElementById("user-1").srcObject = localStream;
-    $.post("/get-remote-users", { omeID: username })
-      .done(function (data) {
-        console.log(data);
-        if (data[0]) {
-          if (data[0]._id == remoteUser || data[0]._id == username) {
-          } else {
-            remoteUser = data[0]._id;
-            createOffer(data[0]._id);
-          }
-        }
-      })
-      .fail(function (xhr, textStatus, errorThrown) {
-        console.log(xhr.responseText);
-      });
+
+    socket.emit("findUnengagedUser", {
+      username: username,
+    });
+
+    socket.on("startChat", (otherUserId) => {
+      console.log("Starting chat with user:", otherUserId);
+      remoteUser = otherUserId;
+      createOffer(otherUserId);
+    });
   };
   init();
-  let socket = io.connect();
-  socket.on("connect", () => {
-    if (socket.connected) {
-      socket.emit("userconnect", {
-        displayName: username,
-      });
-    }
-  });
+
   let servers = {
     iceServers: [
       {
@@ -138,7 +104,6 @@ function runUser() {
     };
 
     peerConnection.ondatachannel = receiveChannelCallback;
-    // sendChannel.onmessage=onSendChannelMessageCallBack;
   };
   function sendData() {
     const msgData = msgInput.value;
@@ -196,20 +161,16 @@ function runUser() {
     }
   }
   function fetchNextUser(remoteUser) {
-    $.post(
-      "/get-next-user",
-      { omeID: username, remoteUser: remoteUser },
-      function (data) {
-        console.log("Next user is: ", data);
-        if (data[0]) {
-          if (data[0]._id == remoteUser || data[0]._id == username) {
-          } else {
-            remoteUser = data[0]._id;
-            createOffer(data[0]._id);
-          }
-        }
-      }
-    );
+    socket.emit("findNextUnengagedUser", {
+      username: username,
+      remoteUser: remoteUser,
+    });
+
+    socket.on("NextStartChat", (otherUserId) => {
+      console.log("Starting chat with user:", otherUserId);
+      remoteUser = otherUserId;
+      createOffer(otherUserId);
+    });
   }
   let createOffer = async (remoteU) => {
     createPeerConnection();
@@ -234,11 +195,6 @@ function runUser() {
       receiver: data.username,
     });
     document.querySelector(".next-chat").style.pointerEvents = "auto";
-    $.ajax({
-      url: "/update-on-engagement/" + username + "",
-      type: "PUT",
-      success: function (response) {},
-    });
   };
   socket.on("ReceiveOffer", function (data) {
     createAnswer(data);
@@ -248,11 +204,6 @@ function runUser() {
       peerConnection.setRemoteDescription(data.answer);
     }
     document.querySelector(".next-chat").style.pointerEvents = "auto";
-    $.ajax({
-      url: "/update-on-engagement/" + username + "",
-      type: "PUT",
-      success: function (response) {},
-    });
   };
   socket.on("ReceiveAnswer", function (data) {
     addAnswer(data);
@@ -268,13 +219,7 @@ function runUser() {
       remoteVid.srcObject = null;
     }
     console.log("Closed Remote user");
-    $.ajax({
-      url: "/update-on-next/" + username + "",
-      type: "PUT",
-      success: function (response) {
-        fetchNextUser(remoteUser);
-      },
-    });
+    fetchNextUser(remoteUser);
   });
 
   socket.on("candidateReceiver", function (data) {
@@ -290,42 +235,6 @@ function runUser() {
       username: username,
       remoteUser: remoteUser,
     });
-    if (navigator.userAgent.indexOf("Chrome") != -1) {
-      $.ajax({
-        url: "/leaving-user-update/" + username + "",
-        type: "PUT",
-        success: function (response) {
-          console.log(response);
-        },
-      });
-      $.ajax({
-        url: "/update-on-otheruser-closing/" + remoteUser + "",
-        type: "PUT",
-        success: function (response) {
-          console.log(response);
-        },
-      });
-    } else if (navigator.userAgent.indexOf("Firefox") != -1) {
-      $.ajax({
-        url: "/leaving-user-update/" + username + "",
-        type: "PUT",
-        async: false,
-        success: function (response) {
-          console.log(response);
-        },
-      });
-
-      $.ajax({
-        url: "/update-on-otheruser-closing/" + remoteUser + "",
-        type: "PUT",
-        async: false,
-        success: function (response) {
-          console.log(response);
-        },
-      });
-    } else {
-      console.log("This is not Chrome or Firefox");
-    }
   });
   async function closeConnection() {
     document.querySelector(".chat-text-area").innerHTML = "";
@@ -343,15 +252,9 @@ function runUser() {
       username: username,
       remoteUser: remoteUser,
     });
-    $.ajax({
-      url: "/update-on-next/" + username + "",
-      type: "PUT",
-      success: function (response) {
-        fetchNextUser(remoteUser);
-      },
-    });
+    fetchNextUser(remoteUser);
   }
-  // document.querySelector(".next-chat").onClick = function () {
+
   $(document).on("click", ".next-chat", function () {
     document.querySelector(".chat-text-area").innerHTML = "";
     console.log("From Next Chat button");
