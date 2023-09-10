@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const bodyparser = require("body-parser");
+const session = require("express-session");
 
 const app = express();
 const dotenv = require("dotenv");
@@ -19,6 +20,22 @@ app.set("view engine", "ejs");
 app.use("/css", express.static(path.resolve(__dirname, "Assets/css")));
 app.use("/img", express.static(path.resolve(__dirname, "Assets/img")));
 app.use("/js", express.static(path.resolve(__dirname, "Assets/js")));
+// app.use(
+//   "/admin/js",
+//   express.static(path.resolve(__dirname, "Assets/js/admin"))
+// );
+app.use(
+  "/admin-assets",
+  express.static(path.resolve(__dirname, "Assets/admin/assets"))
+);
+app.use(
+  session({
+    secret: "whateverthesecretkey", // Replace with a strong secret key
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }, // Set to true if using HTTPS
+  })
+);
 
 app.use("/", require("./Server/routes/router"));
 
@@ -29,6 +46,7 @@ var server = app.listen(PORT, () => {
 const io = require("socket.io")(server, {
   allowEIO3: true, //False by default
 });
+const adminNamespace = io.of("/admin");
 
 var userConnection = [];
 
@@ -46,6 +64,10 @@ io.on("connection", (socket) => {
       const use = { "userid: ": user.user_id, Engaged: user.engaged };
       console.log(use);
     });
+    // io.of("/admin").emit("newUserConnected", {
+    //   userId: socket.id,
+    // });
+    io.of("/admin").emit("userinfo", userConnection);
     var userCount = userConnection.length;
     console.log("UserCount", userCount);
     userConnection.map(function (user) {
@@ -138,6 +160,7 @@ io.on("connection", (socket) => {
     // }
 
     userConnection = userConnection.filter((p) => p.connectionId !== socket.id);
+    io.of("/admin").emit("userinfo", userConnection);
     console.log(
       "Rest users username are: ",
       userConnection.map(function (user) {
@@ -176,4 +199,16 @@ io.on("connection", (socket) => {
   //     clearInterval(interval); // Stop the interval
   //   }
   // }, 2000);
+});
+
+adminNamespace.on("connection", (socket) => {
+  console.log("An admin panel user connected");
+
+  // Provide user data to the admin panel when requested
+  socket.on("requestUserData", () => {
+    // Send user data to the admin panel
+    socket.emit("userData", Object.values(userConnection));
+  });
+
+  // Your admin panel-specific socket.io logic here
 });

@@ -1,0 +1,31 @@
+<!-- Signup Modal -->
+<div id="signupModal" class="modal">
+    <div class="modal-content">
+        <span id="closeModalBtn" class="close">&times;</span>
+        <h2>Signup</h2>
+        <form id="signupForm">
+            <div class="form-group">
+                <label for="email">Email address:</label>
+                <input type="email" id="email" name="email" required>
+                <p class="error" id="emailError"></p>
+                <!-- Error message for email -->
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <p class="error" id="passwordError"></p>
+                <!-- Error message for password -->
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                <p class="error" id="confirmPasswordError"></p>
+                <!-- Error message for confirmPassword -->
+            </div>
+            <button type="submit" class="btn">Signup</button>
+        </form>
+        <p style="color: white;">Have an account?
+            <a href="#" style="color: white;" id="loginPrompt">Login</a>
+        </p>
+    </div>
+</div>

@@ -29,16 +29,16 @@ socket.on("mySocketId", (socketId) => {
   console.log("My Socket ID:", socketId);
 });
 
-document.getElementById("deleteButton").addEventListener("click", () => {
-  fetch("/deleteAllRecords", {
-    method: "DELETE",
-  })
-    .then((response) => response.text())
-    .then((message) => {
-      console.log(message);
-    })
-    .catch((error) => console.error("Error deleting records:", error));
-});
+// document.getElementById("deleteButton").addEventListener("click", () => {
+//   fetch("/deleteAllRecords", {
+//     method: "DELETE",
+//   })
+//     .then((response) => response.text())
+//     .then((message) => {
+//       console.log(message);
+//     })
+//     .catch((error) => console.error("Error deleting records:", error));
+// });
 
 function runUser() {
   let init = async () => {

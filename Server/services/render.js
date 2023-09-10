@@ -9,3 +9,6 @@ exports.video_chat = (req, res) => {
 exports.text_chat = (req, res) => {
   res.render("text_chat");
 };
+exports.admin = (req, res) => {
+  res.render("admin");
+};
