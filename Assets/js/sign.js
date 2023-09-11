@@ -2,6 +2,7 @@
 
 // Get the Sign Up modal and buttons
 const modal = document.getElementById("signupModal");
+const inmodal = document.getElementById("signinModal");
 const openModalBtn = document.getElementById("openModalBtn");
 const closeModalBtn = document.getElementById("closeModalBtn");
 
@@ -78,11 +79,11 @@ window.addEventListener("click", (e) => {
 });
 
 // Prevent the form from submitting (this is just a basic example)
-const signInForm = document.getElementById("signInForm");
-signInForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  // You can add form validation and submission logic here
-});
+// const signInForm = document.getElementById("signInForm");
+// signInForm.addEventListener("submit", (e) => {
+//   e.preventDefault();
+//   // You can add form validation and submission logic here
+// });
 
 signupPrompt.addEventListener("click", () => {
   inModal.style.display = "none";
@@ -176,6 +177,101 @@ document.getElementById("signupForm").addEventListener("submit", async (e) => {
       emailInput.value = "";
       passwordInput.value = "";
       confirmPasswordInput.value = "";
+    } else {
+      // messageContainer.textContent = "Registration failed";
+      const errorMessages = await response.text(); // Get the error message from the response
+      const errorMessageJSON = JSON.parse(errorMessages);
+
+      // Extract the message property
+      const errorMessage = errorMessageJSON.message;
+      const successMessage = document.createElement("div");
+      successMessage.classList.add("fail-message"); // Apply CSS styling if needed
+      successMessage.textContent = errorMessage;
+
+      // Append the success message to the message container
+      messageContainer.appendChild(successMessage);
+
+      // Optionally, you can set a timeout to clear the message after a few seconds
+      setTimeout(() => {
+        messageContainer.textContent = "";
+      }, 5000); // Clear message after 5 seconds (adjust as needed)
+    }
+  }
+});
+// ...........Processing SignIn data............
+
+const signInForm = document.getElementById("signInForm");
+const inemailInput = document.getElementById("inEmail");
+const inpasswordInput = document.getElementById("inPassword");
+
+const inemailError = document.getElementById("inemailError");
+const inpasswordError = document.getElementById("inpasswordError");
+
+document.getElementById("signInForm").addEventListener("submit", async (e) => {
+  let inisValid = true;
+
+  // Reset error messages
+  inemailError.textContent = "";
+  inpasswordError.textContent = "";
+
+  // Validate email
+  const inemailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+  if (!inemailPattern.test(inemailInput.value)) {
+    inisValid = false;
+    inemailError.textContent = "Invalid email format";
+  }
+
+  // Validate password (e.g., at least 8 characters)
+  if (inpasswordInput.value.length < 8) {
+    inisValid = false;
+    inpasswordError.textContent = "Password must be at least 8 characters long";
+  }
+
+  // Validate confirmPassword (must match password)
+  // if (passwordInput.value !== confirmPasswordInput.value) {
+  //   isValid = false;
+  //   confirmPasswordError.textContent = "Passwords do not match";
+  // }
+
+  if (!inisValid) {
+    e.preventDefault(); // Prevent form submission if there are errors
+  } else {
+    e.preventDefault();
+
+    const inemail = document.getElementById("inEmail").value;
+    const inpassword = document.getElementById("inPassword").value;
+
+    // If passwords match, proceed with registration
+    const response = await fetch("/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ inemail, inpassword }),
+    });
+    const messageContainer = document.getElementById("messageContainer");
+
+    if (response.ok) {
+      // Clear any previous messages
+      messageContainer.textContent = "";
+
+      // Create a success message element
+      const successMessage = document.createElement("div");
+      successMessage.classList.add("success-message"); // Apply CSS styling if needed
+      successMessage.textContent = "Login successful";
+
+      // Append the success message to the message container
+      messageContainer.appendChild(successMessage);
+
+      // Optionally, you can set a timeout to clear the message after a few seconds
+      setTimeout(() => {
+        messageContainer.textContent = "";
+      }, 5000); // Clear message after 5 seconds (adjust as needed)
+      // Redirect or perform other actions as needed
+      inmodal.style.display = "none";
+      inmodal.classList.add("fade-out");
+      inemailInput.value = "";
+      inpasswordInput.value = "";
     } else {
       // messageContainer.textContent = "Registration failed";
       const errorMessages = await response.text(); // Get the error message from the response

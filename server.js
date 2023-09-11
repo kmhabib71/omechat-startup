@@ -33,7 +33,10 @@ app.use(
     secret: "whateverthesecretkey", // Replace with a strong secret key
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Set to true if using HTTPS
+    cookie: {
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days (adjust as needed)
+      secure: false, // Set to true if using HTTPS
+    },
   })
 );
 
